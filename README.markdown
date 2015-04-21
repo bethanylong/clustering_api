@@ -12,19 +12,23 @@ Will require modifications if you need to use it with a non-Java backend or are 
 Routes
 ------
 
-- `host:port/json/list/datasets`
-    - Object containing list of dataset filenames
-    - `{"filenames": ["dataset_01.txt", ...]}`
-- `host:port/json/data/some_filename`
-    - Data points and per-round clustering data for some_filename (which should be in /json/list/datasets)
-    - ```
+`host:port/json/list/datasets`: Object containing list of dataset filenames
+
+```
+{"filenames": ["dataset_01.txt", ...]}
+```
+
+`host:port/json/data/some_filename`: Data points and per-round clustering data for some_filename (which should be in /json/list/datasets)
+
+```
 {"filename": some_filename,
  "output": [[first-round clustering for each point], [next-round clustering], ...],
  "points": [[coords of first point], [second point], ...]}
 ```
-- `host:port/json/data/all`
-    - Object containing list of all files' data points and per-round clustering data
-    - ```
+
+`host:port/json/data/all`: Object containing list of all files' data points and per-round clustering data
+
+```
 {"all_data": [{"filename": first_filename,
                "output": [[], [], ...],
                "points": [[], [], ...]},
