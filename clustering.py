@@ -35,6 +35,7 @@ class Clustering:
         cmd += [infile, cluster_alg, num_clusters, num_datapoints, dimensionality]
         cmd = [str(word) for word in cmd]
         # Run command and return output
+        chdir(self.source_dir)
         return check_output(cmd)
 
     def run_all(self, dim_filter=lambda x: int(x) <= 2):
