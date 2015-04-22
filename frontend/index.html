@@ -9,13 +9,27 @@
     <script language="javascript" type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.resize.min.js"></script>
     <script type="text/javascript">
 
+    function listFilenames(filenames) {
+        // Append each given filename to #filenames like
+        // <p><a href="/plot.html?filename=this_filename">this_filename</a></p>
+        var filenamesDiv = document.getElementById('filenames');
+        for (var i = 0; i < filenames.length; i++) {
+            var para = document.createElement('p');
+            var anchor = document.createElement('a');
+            var text = filenames[i];
+            anchor.setAttribute('href', '/plot.html?filename=' + text);
+            anchor.innerHTML = text;
+            para.appendChild(anchor);
+            filenamesDiv.appendChild(para);
+        }
+    }
+
     $(document).ready(function() {
         $(function() {
             var url = '/json/list/datasets';
 
             $.getJSON(url, function(json) {
                 data = json;
-                console.log(data);
                 if (!data || data == {}) {
                     document.getElementById("title").innerHTML = "No data yet; try again in a few seconds";
                     setTimeout(function() {
@@ -24,8 +38,8 @@
                     }, 10000);
                     return;
                 }
-                $.plot("#placeholder", data[0], options);
                 document.getElementById("title").innerHTML = "Available filenames";
+                listFilenames(data['filenames']);
             })
         });
     });
@@ -38,7 +52,7 @@
         <h1 id="title">Retrieving filenames</h1>
     </div>
 
-    <div id="dropdown"></div>
+    <div id="filenames"></div>
 
 </body>
 </html>

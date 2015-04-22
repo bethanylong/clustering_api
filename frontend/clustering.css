@@ -1,7 +1,6 @@
 body {
     font-family: Helvetica, "Helvetica Neue", Arial, sans-serif;
     margin: 50px;
-    /*max-width: 1200px;*/
 }
 
 html, body {
@@ -21,7 +20,8 @@ h1, h2 {
     height: 95%;
 }
 
-#dropdown {
+#filenames {
+    text-align: center;
     margin-left: auto;
     margin-right: auto;
     margin-top: 50px;

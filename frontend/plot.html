@@ -23,7 +23,7 @@
                 }       
             }
 
-            var filename = 'dataset_10.txt';
+            var filename = 'dataset_01.txt';
             if (params.filename) {
                 filename = params.filename;
             }
@@ -43,7 +43,6 @@
 
             $.getJSON(url, function(json) {
                 data = json['clusters'];
-                console.log(data);
                 if (!data || data == {}) {
                     document.getElementById("title").innerHTML = "No data yet; try again in a few seconds";
                     setTimeout(function() {
