@@ -60,16 +60,16 @@ class ClusterCache:
             pretty_file_data = {}
             pf = pretty_file_data
             pf['filename'] = file_data['filename']
-            all_clusters = []
+            clusters = []
             max_cluster_num = max(file_data['output'][0])
             for round in file_data['output']:
                 round_clusters = [[] for index in range(0, max_cluster_num + 1)]
                 for ix, cluster_num in enumerate(round):
                     round_clusters[cluster_num].append(file_data['points'][ix])
 
-                all_clusters.append(round_clusters)
+                clusters.append(round_clusters)
 
-            pf['all_clusters'] = all_clusters
+            pf['clusters'] = clusters
             p.append(pf)
         return p
 

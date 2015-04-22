@@ -39,7 +39,7 @@ Routes
 `host:port/json/cluster/some_filename`: Object containing data points in clusters in rounds of clustering. This is explicit membership (the actual points are in each cluster), rather than having to sift through indices at each round of clustering (as with the routes above).
 
 ```
-{"all_clusters": [[[[point in first cluster of first round], [another point], ...],
+{"clusters": [[[[point in first cluster of first round], [another point], ...],
                    [points in next cluster]],
                   [clusters for next round],
                   [clusters for another round]],
