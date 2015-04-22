@@ -11,12 +11,13 @@ import bottle
 from clustering import Clustering
 from datetime import datetime, timedelta
 import threading
-from os import getuid
+from os import getuid, getcwd, chdir
 
 class ClusterCache:
     def __init__(self, clustering_obj):
         self.cl = clustering_obj # Instantiated clustering.Clustering()
         self.cluster_data = []
+        self.cluster_contents = []
         self.last_gather_time = datetime.utcfromtimestamp(0) # Epoch
         self.gathering_now = threading.Lock()
 
@@ -26,6 +27,7 @@ class ClusterCache:
 
     def finished_gathering_data(self):
         self.last_gather_time = datetime.now()
+        self.cluster_contents = self.list_clusters()
 
     def gather(self):
         self.gathering_now.acquire()
@@ -33,7 +35,7 @@ class ClusterCache:
         self.gathering_now.release()
         self.finished_gathering_data()
 
-    def get_data(self):
+    def refresh_data_if_old(self):
         if not self.gathering_now.locked() and self.data_is_stale():
             # Spawn a new thread, but return stale/nonexistent data for now
             # (If JS frontend gets a result indicating no data has ever been
@@ -41,13 +43,42 @@ class ClusterCache:
             th = threading.Thread(target=self.gather)
             th.daemon = True
             th.start()
+
+    def get_data(self):
+        self.refresh_data_if_old()
         return self.cluster_data
+
+    def get_clusters(self):
+        self.refresh_data_if_old()
+        return self.cluster_contents
+
+    def list_clusters(self):
+        data = self.cluster_data
+        pretty_clusters = []
+        p = pretty_clusters
+        for file_data in data:
+            pretty_file_data = {}
+            pf = pretty_file_data
+            pf['filename'] = file_data['filename']
+            all_clusters = []
+            max_cluster_num = max(file_data['output'][0])
+            for round in file_data['output']:
+                round_clusters = [[] for index in range(0, max_cluster_num + 1)]
+                for ix, cluster_num in enumerate(round):
+                    round_clusters[cluster_num].append(file_data['points'][ix])
+
+                all_clusters.append(round_clusters)
+
+            pf['all_clusters'] = all_clusters
+            p.append(pf)
+        return p
 
 
 # Bottle doesn't like being in a class, but it makes up for it by being awesome otherwise
 app = bottle.default_app()
 cl = Clustering()
 cc = ClusterCache(cl)
+original_cwd = getcwd()
 
 @app.get('/json/data/all')
 def get_data_all():
@@ -56,7 +87,14 @@ def get_data_all():
 
 @app.get('/json/data/<dataset_name>')
 def get_data(dataset_name):
-    all_data = cc.get_data()
+    return get_one_dataset(dataset_name, cc.get_data)
+
+@app.get('/json/cluster/<dataset_name>')
+def get_cluster(dataset_name):
+    return get_one_dataset(dataset_name, cc.get_clusters)
+
+def get_one_dataset(dataset_name, getter_fn):
+    all_data = getter_fn()
     this_dataset = {}
     for dataset in all_data:
         if dataset['filename'] == dataset_name:
@@ -72,6 +110,8 @@ def list_datasets():
 # Look in a directory called 'frontend' for any files ending with the given regex
 @app.get('/<filename:re:.*\.(js|css|html|json|png)>')
 def static_resource(filename):
+    print "Static resource requested: {}".format(filename)
+    chdir(original_cwd)
     return bottle.static_file(filename, root='frontend')
 
 @app.get('/')
@@ -80,4 +120,5 @@ def index():
 
 if __name__ == '__main__':
     #bottle.run(app=app, host='0.0.0.0', port='65080')
+    app.debug = True
     bottle.run(app=app, host='0.0.0.0', port=getuid())
