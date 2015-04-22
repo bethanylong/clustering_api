@@ -95,11 +95,14 @@ def get_cluster(dataset_name):
 
 def get_one_dataset(dataset_name, getter_fn):
     all_data = getter_fn()
-    this_dataset = {}
+
+    if len(all_data) == 0:
+        # No data gathered yet
+        return {}
+
     for dataset in all_data:
         if dataset['filename'] == dataset_name:
-            this_dataset = dataset
-    return this_dataset
+            return dataset
 
 @app.get('/json/list/datasets')
 def list_datasets():
@@ -110,7 +113,6 @@ def list_datasets():
 # Look in a directory called 'frontend' for any files ending with the given regex
 @app.get('/<filename:re:.*\.(js|css|html|json|png)>')
 def static_resource(filename):
-    print "Static resource requested: {}".format(filename)
     chdir(original_cwd)
     return bottle.static_file(filename, root='frontend')
 

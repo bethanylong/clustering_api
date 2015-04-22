@@ -11,36 +11,10 @@
 
     $(document).ready(function() {
         $(function() {
-            // http://stackoverflow.com/questions/979975/how-to-get-the-value-from-url-parameter/979996#979996
-            var params = {}; 
-            if (location.search) {
-                var parts = location.search.substring(1).split('&');
-                        
-                for (var i = 0; i < parts.length; i++) {
-                    var nv = parts[i].split('=');
-                    if (!nv[0]) continue;
-                    params[nv[0]] = decodeURIComponent(nv[1]) || true;
-                }       
-            }
-
-            var filename = 'dataset_01.txt';
-            if (params.filename) {
-                filename = params.filename;
-            }
-            var prefix = '/json/cluster/';
-            var url = prefix + filename;
-
-            var data = [];
-            var options = {
-                series: {
-                    lines: { show: false },
-                    points: { show: true, fill: true, fillColor: false },
-                    shadowSize: 0
-                }
-            };
+            var url = '/json/list/datasets';
 
             $.getJSON(url, function(json) {
-                data = json['clusters'];
+                data = json;
                 console.log(data);
                 if (!data || data == {}) {
                     document.getElementById("title").innerHTML = "No data yet; try again in a few seconds";
@@ -51,11 +25,8 @@
                     return;
                 }
                 $.plot("#placeholder", data[0], options);
-                document.getElementById("title").innerHTML = filename;
+                document.getElementById("title").innerHTML = "Available filenames";
             })
-            .fail(function() {
-                document.getElementById("title").innerHTML = "No data available for given filename";
-            });
         });
     });
 
@@ -64,10 +35,10 @@
 <body>
 
     <div id="header">
-        <h1 id="title">Retrieving Data</h1>
+        <h1 id="title">Retrieving filenames</h1>
     </div>
 
-    <div id="placeholder"></div>
+    <div id="dropdown"></div>
 
 </body>
 </html>
