@@ -40,8 +40,8 @@ Routes
 
 ```
 {"clusters": [[[[point in first cluster of first round], [another point], ...],
-                   [points in next cluster]],
-                  [clusters for next round],
-                  [clusters for another round]],
+               [points in next cluster]],
+              [clusters for next round],
+              [clusters for another round]],
  "filename": some_filename}
 ```
