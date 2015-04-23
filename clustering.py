@@ -53,24 +53,10 @@ class Clustering:
                 continue
 
             # Do the clustering and capture output
-            output = self.run(infile=self.data_dir + '/' + self.filename(data_spec), num_datapoints=self.num_datapoints(data_spec), dimensionality=self.dimensionality(data_spec))
-            # Parse output and store in dict
-            result = {'filename': self.filename(data_spec), 'output': [s.strip().split() for s in output.splitlines()]}
-            # Cast cluster membership for each point to int
-            result['output'] = [[int(cl_num) for cl_num in cl_round] for cl_round in result['output']]
-
-            points = []
-            with open(self.data_dir + '/' + self.filename(data_spec)) as f:
-                # Look in dataset file and store that in a dict too
-                # (It's hard to draw a graph when you don't know the points)
-                points = f.readlines()
-                points = [s.strip().split() for s in points]
-            # Cast coordinates for each point to float
-            points = [[float(coord) for coord in point] for point in points]
-            result['points'] = points
-
+            infile = self.data_dir + '/' + self.filename(data_spec)
+            output = self.run(infile=infile, num_datapoints=self.num_datapoints(data_spec), dimensionality=self.dimensionality(data_spec))
+            result = self.parse_program_output(self.filename(data_spec), output, infile)
             results.append(result)
-
         return results
 
     def parse_readme(self):
@@ -84,6 +70,48 @@ class Clustering:
         # Remove first two characters from words containing '=' (like 'N=10000' -> '10000')
         data_specs = [[word[2:] if '=' in word else word for word in line] for line in data_specs]
         return data_specs
+
+    def parse_program_output(self, filename, output, path_to_points):
+        # Take an input data filename, its associated program output (from
+        # run), and the original input data file containing data points, and
+        # return the actual points in each cluster for each round.
+
+        # Parse output and store in dict
+        result = {'filename': filename, 'output': [s.strip().split() for s in output.splitlines()]}
+        # Cast cluster membership for each point to int
+        result['output'] = [[int(cl_num) for cl_num in cl_round] for cl_round in result['output']]
+
+        points = []
+        with open(path_to_points) as f:
+            # Look in dataset file and store that in a dict too
+            # (It's hard to draw a graph when you don't know the points)
+            points = f.readlines()
+            points = [s.strip().split() for s in points]
+        # Cast coordinates for each point to float
+        points = [[float(coord) for coord in point] for point in points]
+        result['points'] = points
+        return result
+
+    def list_clusters(self, data):
+        # Take a list of what parse_program_output returns (for any number of
+        # input data sets) and transform it into cluster lists that Flot will
+        # gladly draw.
+        p = [] # Pretty clusters
+        for file_data in data:
+            pf = {} # Pretty file data
+            pf['filename'] = file_data['filename']
+            clusters = []
+            max_cluster_num = max(file_data['output'][0])
+            for round in file_data['output']:
+                round_clusters = [[] for index in range(0, max_cluster_num + 1)]
+                for ix, cluster_num in enumerate(round):
+                    round_clusters[cluster_num].append(file_data['points'][ix])
+
+                clusters.append(round_clusters)
+
+            pf['clusters'] = clusters
+            p.append(pf)
+        return p
 
 if __name__ == '__main__':
     c = Clustering()

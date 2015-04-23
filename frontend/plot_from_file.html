@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Clustering</title>
+    <link href="clustering.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <script language="javascript" type="text/javascript" src="//code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script language="javascript" type="text/javascript" src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script language="javascript" type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.min.js"></script>
+    <script language="javascript" type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.resize.min.js"></script>
+    <script type="text/javascript">
+
+    var data = [];
+
+    function populateSelect(maxRoundNum) {
+        var selectElem = document.getElementById('roundNum');
+        for (var i = 1; i <= maxRoundNum; i++) {
+            var optionElem = document.createElement('option');
+            optionElem.innerHTML = i;
+            selectElem.appendChild(optionElem);
+        }
+        selectElem.selectedIndex = 0; // Not working!?
+    }
+
+    // https://jqueryui.com/slider/#hotelrooms
+    function setupSlider(maxRoundNum) {
+        var select = $( "#roundNum" );
+        var slider = $( "<div id='slider' style='float: right; width: 80%'></div>" ).insertAfter( select ).slider({
+          min: 1,
+          max: maxRoundNum,
+          range: "min",
+          value: select[ 0 ].selectedIndex + 1,
+          slide: function( event, ui ) {
+            select[ 0 ].selectedIndex = ui.value - 1;
+            plotRound(data, ui.value);
+          }
+        });
+        $( "#roundNum" ).change(function() {
+          slider.slider( "value", this.selectedIndex + 1 );
+          plotRound(data, this.selectedIndex + 1);
+        });
+    }
+
+    function plotRound(data, roundNum) {
+        var options = {
+            series: {
+                lines: { show: false },
+                points: { show: true, fill: true, fillColor: false },
+                shadowSize: 0
+            },
+            // http://colorbrewer2.org/
+            colors: ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a"]
+        };
+        $.plot("#placeholder", data[roundNum - 1], options);
+    }
+
+    $(document).ready(function() {
+        $(function() {
+            // http://stackoverflow.com/questions/979975/how-to-get-the-value-from-url-parameter/979996#979996
+            var params = {}; 
+            if (location.search) {
+                var parts = location.search.substring(1).split('&');
+                        
+                for (var i = 0; i < parts.length; i++) {
+                    var nv = parts[i].split('=');
+                    if (!nv[0]) continue;
+                    params[nv[0]] = decodeURIComponent(nv[1]) || true;
+                }       
+            }
+
+            var filename = '';
+            if (params.filename) {
+                filename = params.filename;
+            }
+            //var prefix = '/json/cluster/';
+            var prefix = '';
+            var url = prefix + filename;
+
+            $.getJSON(url, function(json) {
+                data = json['clusters'];
+                console.log(JSON.stringify(data));
+                if (!data || data == {}) {
+                    document.getElementById("title").innerHTML = "Error reading data";
+                    return;
+                }
+
+                plotRound(data, data.length);
+                document.getElementById("title").innerHTML = filename;
+                populateSelect(data.length);
+                setupSlider(data.length);
+            })
+            .fail(function() {
+                document.getElementById("title").innerHTML = "No data available for given filename";
+            });
+        });
+    });
+
+    </script>
+</head>
+<body>
+
+    <div id="header">
+        <h1 id="title">Retrieving Data</h1>
+    </div>
+
+    <div id="placeholder"></div>
+
+    <div id="rounds" style="width: 100%; max-width: 1200px; margin-left: auto; margin-right: auto; padding: 10px">
+        <span style="float: left">Round&nbsp;</span>
+        <div id="select" style="width: 100%">
+            <select id="roundNum"></select>
+        </div>
+        <!--<div id="slider"></div>-->
+    </div>
+
+</body>
+</html>
