@@ -17,6 +17,23 @@ Usage
 3. Run `python clustering_bottle.py`
 4. In a web browser, navigate to the machine you're using at whatever port Bottle tells you it's using (example: linux-09.cs.wwu.edu:10960)
 
+Static graph data
+-----------------
+
+In case setting up the API to dynamically retrieve graph data from your program seems intimidating, you can transform prog1 output into plottable graph data with `clustering_dump.py`.
+
+This script can be run in a pipeline with your program output. Assuming you've checked this repository out into `~/public_html/clustering_api`:
+
+```
+$ java prog1 -rand your_dataset.txt algorithm clusters num_datapoints num_dimensions | \
+python ~/public_html/clustering_api/clustering_dump.py your_dataset.txt > \
+~/public_html/clustering_api/frontend/your_dataset.json
+```
+
+(Obviously, if you used C/C++ to implement prog1, change the command accordingly.)
+
+Then, once your json file has been written, you can view the graph at `http://sw.cs.wwu.edu/~your_username/clustering_api/frontend/plot_from_file.html?filename=your_dataset.json`.
+
 Routes
 ------
 
@@ -53,20 +70,3 @@ Routes
               [clusters for another round]],
  "filename": some_filename}
 ```
-
-Static graph data
------------------
-
-In case setting up the API to dynamically retrieve graph data from your program seems intimidating, you can transform prog1 output into plottable graph data with `clustering_dump.py`.
-
-This script can be run in a pipeline with your program output. Assuming you've checked this repository out into `~/public_html/clustering_api`:
-
-```
-$ java prog1 -rand your_dataset.txt algorithm clusters num_datapoints num_dimensions | \
-python ~/public_html/clustering_api/clustering_dump.py your_dataset.txt > \
-~/public_html/clustering_api/frontend/your_dataset.json
-```
-
-(Obviously, if you used C/C++ to implement prog1, change the command accordingly.)
-
-Then, once your json file has been written, you can view the graph at `http://sw.cs.wwu.edu/~your_username/clustering_api/frontend/plot_from_file.html?filename=your_dataset.json`.
