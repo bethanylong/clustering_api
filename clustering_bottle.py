@@ -62,4 +62,4 @@ if __name__ == '__main__':
     port = getuid()
     if port < 1024:
         port += 60000
-    bottle.run(app=app, host='0.0.0.0', port=getuid())
+    bottle.run(app=app, host='0.0.0.0', port=port)
