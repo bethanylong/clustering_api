@@ -28,7 +28,7 @@
 
             $.getJSON(url, function(json) {
                 data = json;
-                if (!data || data == {}) {
+                if (!data || data['filenames'].length == 0) {
                     document.getElementById("title").innerHTML = "No data yet; try again in a few seconds";
                     setTimeout(function() {
                         document.getElementById("title").innerHTML = "Ok, fine, I'll reload for you";
