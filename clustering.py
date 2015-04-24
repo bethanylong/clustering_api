@@ -10,12 +10,6 @@ from subprocess import call, check_output
 import clustering_options
 
 class Clustering:
-    # Easy ways to get to the fields parse_readme returns
-    # (TODO: Perhaps this means it would be better to store them in a dict)
-    filename = lambda self, x: x[0]
-    num_datapoints = lambda self, x: x[1]
-    dimensionality = lambda self, x: x[2]
-
     def __init__(self):
         self.source_dir = clustering_options.source_dir
         self.data_dir = clustering_options.data_dir
@@ -50,13 +44,13 @@ class Clustering:
         for data_spec in self.parse_readme():
 
             # Skip datasets which would be difficult to render (3+ dimensions)
-            if not dim_filter(self.dimensionality(data_spec)):
+            if not dim_filter(data_spec['dimensionality']):
                 continue
 
             # Do the clustering and capture output
-            infile = self.data_dir + '/' + self.filename(data_spec)
-            output = self.run(infile=infile, num_datapoints=self.num_datapoints(data_spec), dimensionality=self.dimensionality(data_spec))
-            result = self.parse_program_output(self.filename(data_spec), output, infile)
+            infile = self.data_dir + '/' + data_spec['filename']
+            output = self.run(infile=infile, num_datapoints=data_spec['num_datapoints'], dimensionality=data_spec['dimensionality'])
+            result = self.parse_program_output(data_spec['filename'], output, infile)
             results.append(result)
         return results
 
@@ -65,11 +59,13 @@ class Clustering:
         with open(self.data_dir + '/README.txt') as f:
             readme_content = f.readlines()
             # Split line on spaces (list of lists of words)
-            data_specs = [line.split() for line in readme_content]
-        # Remove header (only include lines where the first word ends in '.txt'
-        data_specs = [line[0:3] for line in data_specs if len(line) >= 3 and line[0].endswith('.txt')]
-        # Remove first two characters from words containing '=' (like 'N=10000' -> '10000')
-        data_specs = [[word[2:] if '=' in word else word for word in line] for line in data_specs]
+            content = [line.split() for line in readme_content]
+            # Remove header (only include lines where the first word ends in '.txt'
+            content = [line[0:3] for line in content if len(line) >= 3 and line[0].endswith('.txt')]
+            # Remove first two characters from words containing '=' (like 'N=10000' -> '10000')
+            content = [[word[2:] if '=' in word else word for word in line] for line in content]
+            # Label this information by storing it in a dict
+            data_specs = [{'filename': elem[0], 'num_datapoints': elem[1], 'dimensionality': elem[2]} for elem in content]
         return data_specs
 
     def parse_program_output(self, filename, output, path_to_points):
