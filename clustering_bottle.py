@@ -59,6 +59,7 @@ def index():
     return static_resource('index.html')
 
 if __name__ == '__main__':
-    #bottle.run(app=app, host='0.0.0.0', port='65080')
-    app.debug = True
+    port = getuid()
+    if port < 1024:
+        port += 60000
     bottle.run(app=app, host='0.0.0.0', port=getuid())

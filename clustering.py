@@ -49,7 +49,8 @@ class Clustering:
 
             # Do the clustering and capture output
             infile = self.data_dir + '/' + data_spec['filename']
-            output = self.run(infile=infile, num_datapoints=data_spec['num_datapoints'], dimensionality=data_spec['dimensionality'])
+            output = self.run(infile=infile, num_datapoints=data_spec['num_datapoints'],
+                              dimensionality=data_spec['dimensionality'])
             result = self.parse_program_output(data_spec['filename'], output, infile)
             results.append(result)
         return results
@@ -65,7 +66,9 @@ class Clustering:
             # Remove first two characters from words containing '=' (like 'N=10000' -> '10000')
             content = [[word[2:] if '=' in word else word for word in line] for line in content]
             # Label this information by storing it in a dict
-            data_specs = [{'filename': elem[0], 'num_datapoints': elem[1], 'dimensionality': elem[2]} for elem in content]
+            data_specs = [{'filename': elem[0],
+                           'num_datapoints': elem[1],
+                           'dimensionality': elem[2]} for elem in content]
         return data_specs
 
     def parse_program_output(self, filename, output, path_to_points):
