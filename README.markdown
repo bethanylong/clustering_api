@@ -7,7 +7,15 @@ Calls up the assignment backend in a thread, caches the results, and returns dat
 
 Parses README.txt in prog1_data to find input file specifications.
 
-Will require modifications if you need to use it with a non-Java backend or are not me.
+Usage
+-----
+
+1. Modify `clustering_options.py` with the paths to your source directory and dataset directory
+2. Install the `bottle` module in a virtualenv
+    - Read the instructions in `/usr/local/bin/virtualenvwrapper.sh` to create a virtualenv
+    - Once you're in your virtualenv, do `pip install bottle`
+3. Run `python clustering_bottle.py`
+4. In a web browser, navigate to the machine you're using at whatever port Bottle tells you it's using (example: linux-09.cs.wwu.edu:10960)
 
 Routes
 ------

@@ -7,6 +7,7 @@
 
 from os import chdir
 from subprocess import call, check_output
+import clustering_options
 
 class Clustering:
     # Easy ways to get to the fields parse_readme returns
@@ -16,8 +17,8 @@ class Clustering:
     dimensionality = lambda self, x: x[2]
 
     def __init__(self):
-        self.source_dir = '/home/longb4/code/497/svnwc/prog1'
-        self.data_dir = '/home/longb4/code/497/svnwc/prog1/prog1_data'
+        self.source_dir = clustering_options.source_dir
+        self.data_dir = clustering_options.data_dir
         self.build_cmd = 'javac prog1.java'
         self.run_cmd = 'java prog1'
 
